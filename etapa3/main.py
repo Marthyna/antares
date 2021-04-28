@@ -79,7 +79,7 @@ with open("livros.csv",'r') as f:
                 and (row[18].isdigit()) \
                 and (row[19].isdigit()):
                 for i in range(0,20):
-                    if (row[i] != '') and (row[i] != ' ') and (row[i] != 'nan') and (row[i] != '.') and (row[i] != 'nao'):
+                    if (row[i] != '') and (row[i] != ' ') and (row[i] != 'nan'):
                         escreve = True  
             if escreve:
                 writer.writerow(row)
@@ -132,12 +132,20 @@ with open('livros_trim.csv','r') as file:
         lista = []
         for row in reader:
             editora = Editora(i,row[7])
-            nome = editora.nome_editora
+            nome = editora.nome_editora.lstrip('[')
             if nome not in lista:
                 lista.append(nome)
                 pickle.dump(editora, pkfile)
-            i += 1
-        print(lista)
+                i += 1
+        lista.clear()
 # livros_autores
 # livros_generos
     
+ids = nomes = []
+with open('editoras.pkl','rb') as pkfile:
+    while True:
+        try:
+            ed = pickle.load(pkfile)
+            print(ed.id_editora,' - ',ed.nome_editora)
+        except EOFError:
+            break
