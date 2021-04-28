@@ -1,5 +1,4 @@
 import csv
-<<<<<<< HEAD
 try:
     import cPickle as pickle
 except ModuleNotFoundError:
@@ -8,11 +7,6 @@ import Levenshtein
 
 # classes da aplicação
 class Livro(object):    
-=======
-import pickle
-
-class livro:    
->>>>>>> 62febb766905799f93da5c2978233a066b2ecc0b
     def __init__(self,v0,v1,v2,v3,v4,v5,v6,v7,v8,v9,v10,v11,v12,v13,v14,v15):
         self.id_livro = v0
         self.titulo = v1
@@ -31,54 +25,33 @@ class livro:
         self.qt_homens = v14
         self.id_editora = v15
 
-<<<<<<< HEAD
 class Editora(object):
-=======
-class editora:
->>>>>>> 62febb766905799f93da5c2978233a066b2ecc0b
     def __init__(self,v0,v1):
         self.id_editora = v0
         self.nome_editora = v1
 
-<<<<<<< HEAD
 class Autor(object):
-=======
-class autor:
->>>>>>> 62febb766905799f93da5c2978233a066b2ecc0b
     def __init__(self,v0,v1):
         self.id_autor = v0
         self.nome_autor = v1
 
-<<<<<<< HEAD
 class Livro_autor(object):
-=======
-class livro_autor:
->>>>>>> 62febb766905799f93da5c2978233a066b2ecc0b
     def __init__(self,v0,v1,v2):
         self.id_livro_autor = v0
         self.id_livro = v1
         self.id_autor = v2
 
-<<<<<<< HEAD
 class Genero(object):
-=======
-class genero:
->>>>>>> 62febb766905799f93da5c2978233a066b2ecc0b
     def __init__(self,v0,v1):
         self.id_genero = v0
         self.nome_genero = v1
 
-<<<<<<< HEAD
 class Livro_genero(object):
-=======
-class livro_genero:
->>>>>>> 62febb766905799f93da5c2978233a066b2ecc0b
     def __init__(self,v0,v1,v2):
         self.id_livro_genero = v0
         self.id_livro = v1
         self.id_genero = v2
 
-<<<<<<< HEAD
 # limpar dados brutos
 with open("livros.csv",'r') as f:
     reader = csv.reader(f)
@@ -168,17 +141,3 @@ with open('livros_trim.csv','r') as file:
 # livros_autores
 # livros_generos
     
-=======
-fo = open("editoras.csv",'wb+')
-
-# preencher arquivo binário das editoras
-with open('livros.csv','r') as file:
-    reader = csv.reader(file)
-    i=0
-    for row in reader:
-        ed = editora(i,row[7])
-        i += 1
-        
-
-
->>>>>>> 62febb766905799f93da5c2978233a066b2ecc0b
