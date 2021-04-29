@@ -53,7 +53,7 @@ class Livro_genero(object):
         self.id_genero = v2
 
 # limpar dados brutos
-with open("livros.csv",'r') as f:
+with open("books.csv",'r') as f:
     reader = csv.reader(f)
     with open("livros_limpo.csv",'w') as f1:
         writer = csv.writer(f1, delimiter=',')
