@@ -1,3 +1,4 @@
+# bibliotecas
 import csv
 try:
     import cPickle as pickle
@@ -121,13 +122,26 @@ with open("livros_unicos.csv",'r') as inp, open("livros_trim.csv",'w') as outp:
                 writer.writerow(row)
 
 # preencher arquivos binários
+# autores
 with open('livros_trim.csv','r') as file:
     reader = csv.reader(file)
-    i=0
-# livros
-# autores
+    i = 0
+    with open('autores.pkl','wb') as pkfile:
+        lista = []
+        for row in reader:
+            autor = Autor(i,row[1])
+            nome = autor.nome_autor.strip()
+            if nome not in lista:
+                lista.append(nome)
+                pickle.dump(autor, pkfile)
+                i += 1
+        lista.clear()
 # generos
-    # editoras
+
+# editoras
+with open('livros_trim.csv','r') as file:
+    reader = csv.reader(file)
+    i = 0
     with open('editoras.pkl','wb') as pkfile:
         lista = []
         for row in reader:
@@ -138,14 +152,47 @@ with open('livros_trim.csv','r') as file:
                 pickle.dump(editora, pkfile)
                 i += 1
         lista.clear()
+
+# livros
+with open('livros_trim.csv','r') as file:
+    reader = csv.reader(file)
+    i = 0
+    with open('livros.pkl','wb') as pkfile:
+        lista = []
+        for row in reader:
+            #procura id editora no pkfile de editoras
+            id_editora = 0
+            with open('editoras.pkl','rb') as pkeditoras:
+                while True:
+                    try:
+                        ed = pickle.load(pkeditoras)
+                        if ed.nome_editora == row[7]:
+                            id_editora = ed.id_editora
+                            break
+                    except EOFError:
+                        print("id não encontrado")
+                        break
+
+            livro = Livro(i, row[0], row[3], row[6],  \
+                row[5], row[4], row[8], row[9], row[11], \
+                row[12], row[13], row[14], row[15], row[19], \
+                row[18],id_editora)
+            nome = livro.titulo
+
+            if nome not in lista:
+                lista.append(nome)
+                pickle.dump(livro, pkfile)
+                i += 1
+        lista.clear()
+
 # livros_autores
 # livros_generos
     
 ids = nomes = []
-with open('editoras.pkl','rb') as pkfile:
+with open('livros.pkl','rb') as pkfile:
     while True:
         try:
-            ed = pickle.load(pkfile)
-            print(ed.id_editora,' - ',ed.nome_editora)
+            lv = pickle.load(pkfile)
+            #print(lv.id_livro,' - ',lv.titulo)
         except EOFError:
             break
