@@ -4,7 +4,7 @@ try:
     import cPickle as pickle
 except ModuleNotFoundError:
     import pickle
-import Levenshtein
+import re
 
 # classes da aplicação
 class Livro(object):    
@@ -73,15 +73,22 @@ with open("books.csv",'r') as f:
             # campos não são vazios
             for i in range(0,20):
                 row[i] = row[i].lower()
+                
             if (" " not in row[3]) \
+                and (len(row[17]) >= 5) \
                 and (len(row[4]) == 4) and (len(row[5]) <= 5) \
                 and ("." in row[8]) \
                 and (row[9].isdigit()) \
                 and (row[18].isdigit()) \
                 and (row[19].isdigit()):
                 for i in range(0,20):
-                    if (row[i] != '') and (row[i] != ' ') and (row[i] != 'nan'):
-                        escreve = True  
+                    escrevei = False
+                    if (row[i] != '') and (row[i] != ' ') and (row[i] != 'nan') \
+                    and (row[i].isascii()):
+                        escrevei = True
+                if escrevei:
+                    escreve = True
+  
             if escreve:
                 writer.writerow(row)
 
@@ -91,39 +98,43 @@ with open("livros_limpo.csv",'r') as inp, open("livros_unicos.csv",'w') as outp:
     lista = []
     writer = csv.writer(outp)
     for row in reader:
+        row[0] = row[0].strip()
         if row[0] not in lista: # repetição de título
             lista.append(row[0])
             writer.writerow(row)
         else:
             lista.clear()
+            row[3] = row[3].strip()
             if row[3] not in lista: # repetição de isbn10
                 lista.append(row[3])
                 writer.writerow(row)
     lista.clear()
         
 # ajeitar genero (formato:'genero/genero/genero/.../genero')
-def split_genero(texto):
-    genero = texto.split('/',1)
-    if len(genero) < 2:
-        return genero
-    else:
-        return (genero[1]) 
+#def split_genero(texto):
+#    genero = texto.split('/',1)
+    # se o genero era um só um, retorna ele, senão retorna a lista
+#    if len(genero) < 2:
+#        return genero
+#    else:
+#        return (genero[1]) 
 
-with open("livros_unicos.csv",'r') as inp, open("livros_trim.csv",'w') as outp:
-    reader = csv.reader(inp)
-    writer = csv.writer(outp)
-    for row in reader:
-        gen = row[17]
-        if gen != 'editora':
-            if len(gen) > 100:
-                gen = split_genero(gen) # se string muito grande, trunca no segundo genero da lista
-            if len(gen) > 3:
-                row[17] = gen
-                writer.writerow(row)
+#with open("livros_unicos.csv",'r') as inp, open("livros_trim.csv",'w') as outp:
+#    reader = csv.reader(inp)
+#    writer = csv.writer(outp)
+#    for row in reader:
+#        gen = row[17]
+#        if len(gen) > 100:
+#            gen = split_genero(gen) # se string muito grande, trunca no segundo genero da lista
+        # se split_genero retornou -1, pula esse registro
+#        if gen != -1:
+#            if len(gen) > 3:
+#                row[17] = gen
+#                writer.writerow(row)
 
 # preencher arquivos binários
 # autores
-with open('livros_trim.csv','r') as file:
+with open('livros_unicos.csv','r') as file:
     reader = csv.reader(file)
     i = 0
     with open('autores.pkl','wb') as pkfile:
@@ -136,17 +147,46 @@ with open('livros_trim.csv','r') as file:
                 pickle.dump(autor, pkfile)
                 i += 1
         lista.clear()
+
 # generos
+with open('livros_unicos.csv','r') as file:
+    reader = csv.reader(file)
+    i = 0
+    with open('generos.pkl','wb') as pkfile:
+        lista = []
+        for row in reader:
+            # pegar o campo de genero de um livro e separar numa lista (separar pelo '/')
+            generos = row[17].split('/') 
+            for genero in generos:
+                # remove chars hexadecimais e espaços em branco na frente/atrás
+                genero = genero.replace('\x94','')
+                genero = genero.replace('\x96','')
+                genero = genero.strip()
+                genero = genero.replace('\xa0','')
+                genero = genero.replace('\x93','')
+                genero = genero.replace('\x97','')
+                genero = genero.replace('\x92','')
+                genero = genero.replace('\x85','')
+                genero = genero.replace('\u2800','')
+                # para cada item da lista de generos de um livro:
+                # verificar se esse item esta na lista de todos os generos
+                if (genero not in lista) and (len(genero) >= 5):
+                    # se nao está, inserir na lista e escrever no arquivo binário de generos
+                    lista.append(genero)
+                    genero_obj = Genero(i,genero)
+                    pickle.dump(genero_obj,pkfile)
+                    i += 1
+        lista.clear()
 
 # editoras
-with open('livros_trim.csv','r') as file:
+with open('livros_unicos.csv','r') as file:
     reader = csv.reader(file)
     i = 0
     with open('editoras.pkl','wb') as pkfile:
         lista = []
         for row in reader:
             editora = Editora(i,row[7])
-            nome = editora.nome_editora.lstrip('[')
+            nome = editora.nome_editora.strip()
             if nome not in lista:
                 lista.append(nome)
                 pickle.dump(editora, pkfile)
@@ -154,7 +194,7 @@ with open('livros_trim.csv','r') as file:
         lista.clear()
 
 # livros
-with open('livros_trim.csv','r') as file:
+with open('livros_unicos.csv','r') as file:
     reader = csv.reader(file)
     i = 0
     with open('livros.pkl','wb') as pkfile:
@@ -172,6 +212,20 @@ with open('livros_trim.csv','r') as file:
                     except EOFError:
                         print("id não encontrado")
                         break
+            row[0] = row[0].strip()
+            row[3] = row[3].strip()
+            row[6] = row[6].strip()
+            row[5] = row[5].strip()
+            row[4] = row[4].strip()
+            row[8] = row[8].strip()
+            row[9] = row[9].strip()
+            row[11] = row[11].strip()
+            row[12] = row[12].strip()
+            row[13] = row[13].strip()
+            row[14] = row[14].strip()
+            row[15] = row[15].strip()
+            row[19] = row[19].strip()
+            row[18] = row[18].strip()
 
             livro = Livro(i, row[0], row[3], row[6],  \
                 row[5], row[4], row[8], row[9], row[11], \
@@ -189,10 +243,10 @@ with open('livros_trim.csv','r') as file:
 # livros_generos
     
 ids = nomes = []
-with open('livros.pkl','rb') as pkfile:
+with open('generos.pkl','rb') as pkfile:
     while True:
         try:
-            lv = pickle.load(pkfile)
-            #print(lv.id_livro,' - ',lv.titulo)
+            gn = pickle.load(pkfile)
+            print(gn.id_genero,' - ',repr(gn.nome_genero))
         except EOFError:
             break
