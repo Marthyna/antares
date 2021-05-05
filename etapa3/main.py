@@ -8,50 +8,53 @@ import re
 
 # classes da aplicação
 class Livro(object):    
-    def __init__(self,v0,v1,v2,v3,v4,v5,v6,v7,v8,v9,v10,v11,v12,v13,v14,v15):
-        self.id_livro = v0
-        self.titulo = v1
-        self.isbn10 = v2
-        self.idioma = v3
-        self.paginas = v4
-        self.ano = v5
-        self.avaliacao = v6
-        self.qt_avaliacoes = v7
-        self.avandonos = v8
-        self.relendo = v9
-        self.querem_ler = v10
-        self.lendo = v11
-        self.leram = v12
-        self.qt_mulheres = v13
-        self.qt_homens = v14
-        self.id_editora = v15
+    def __init__(self,id,titulo,isbn10,idioma,paginas, \
+                ano,avaliacao,qt_avaliacoes,abandonos,relendo, \
+                queremler,lendo,leram,qt_mulheres,qt_homens,editora,autor):
+        self.id = id
+        self.titulo = titulo
+        self.isbn10 = isbn10
+        self.idioma = idioma
+        self.paginas = paginas
+        self.ano = ano
+        self.avaliacao = avaliacao
+        self.qt_avaliacoes = qt_avaliacoes
+        self.abandonos = abandonos
+        self.relendo = relendo
+        self.querem_ler = queremler
+        self.lendo = lendo
+        self.leram = leram
+        self.qt_mulheres = qt_mulheres
+        self.qt_homens = qt_homens
+        self.editora = editora
+        self.autor = autor
 
 class Editora(object):
-    def __init__(self,v0,v1):
-        self.id_editora = v0
-        self.nome_editora = v1
+    def __init__(self,id,nome):
+        self.id = id
+        self.nome = nome
 
 class Autor(object):
-    def __init__(self,v0,v1):
-        self.id_autor = v0
-        self.nome_autor = v1
+    def __init__(self,id,nome):
+        self.id = id
+        self.nome = nome
 
-class Livro_autor(object):
-    def __init__(self,v0,v1,v2):
-        self.id_livro_autor = v0
-        self.id_livro = v1
-        self.id_autor = v2
+#class Livro_autor(object):
+#    def __init__(self,v0,v1,v2):
+#        self.id_livro_autor = v0
+#        self.id_livro = v1
+#        self.id_autor = v2
 
 class Genero(object):
-    def __init__(self,v0,v1):
-        self.id_genero = v0
-        self.nome_genero = v1
+    def __init__(self,id,nome):
+        self.id = id
+        self.nome = nome
 
 class Livro_genero(object):
-    def __init__(self,v0,v1,v2):
-        self.id_livro_genero = v0
-        self.id_livro = v1
-        self.id_genero = v2
+    def __init__(self,id,livro,genero):
+        self.id = id
+        self.livro = livro
+        self.genero = genero
 
 # limpar dados brutos
 with open("books.csv",'r') as f:
@@ -73,6 +76,7 @@ with open("books.csv",'r') as f:
             # campos não são vazios
             for i in range(0,20):
                 row[i] = row[i].lower()
+                row[i] = row[i].strip()
                 
             if (" " not in row[3]) \
                 and (len(row[17]) >= 5) \
@@ -109,28 +113,6 @@ with open("livros_limpo.csv",'r') as inp, open("livros_unicos.csv",'w') as outp:
                 lista.append(row[3])
                 writer.writerow(row)
     lista.clear()
-        
-# ajeitar genero (formato:'genero/genero/genero/.../genero')
-#def split_genero(texto):
-#    genero = texto.split('/',1)
-    # se o genero era um só um, retorna ele, senão retorna a lista
-#    if len(genero) < 2:
-#        return genero
-#    else:
-#        return (genero[1]) 
-
-#with open("livros_unicos.csv",'r') as inp, open("livros_trim.csv",'w') as outp:
-#    reader = csv.reader(inp)
-#    writer = csv.writer(outp)
-#    for row in reader:
-#        gen = row[17]
-#        if len(gen) > 100:
-#            gen = split_genero(gen) # se string muito grande, trunca no segundo genero da lista
-        # se split_genero retornou -1, pula esse registro
-#        if gen != -1:
-#            if len(gen) > 3:
-#                row[17] = gen
-#                writer.writerow(row)
 
 # preencher arquivos binários
 # autores
@@ -141,7 +123,7 @@ with open('livros_unicos.csv','r') as file:
         lista = []
         for row in reader:
             autor = Autor(i,row[1])
-            nome = autor.nome_autor.strip()
+            nome = autor.nome.strip()
             if nome not in lista:
                 lista.append(nome)
                 pickle.dump(autor, pkfile)
@@ -159,15 +141,15 @@ with open('livros_unicos.csv','r') as file:
             generos = row[17].split('/') 
             for genero in generos:
                 # remove chars hexadecimais e espaços em branco na frente/atrás
+                genero = genero.replace('\x92','')
+                genero = genero.replace('\x93','')
                 genero = genero.replace('\x94','')
                 genero = genero.replace('\x96','')
-                genero = genero.strip()
-                genero = genero.replace('\xa0','')
-                genero = genero.replace('\x93','')
                 genero = genero.replace('\x97','')
-                genero = genero.replace('\x92','')
                 genero = genero.replace('\x85','')
+                genero = genero.replace('\xa0','')
                 genero = genero.replace('\u2800','')
+                genero = genero.strip()
                 # para cada item da lista de generos de um livro:
                 # verificar se esse item esta na lista de todos os generos
                 if (genero not in lista) and (len(genero) >= 5):
@@ -186,7 +168,7 @@ with open('livros_unicos.csv','r') as file:
         lista = []
         for row in reader:
             editora = Editora(i,row[7])
-            nome = editora.nome_editora.strip()
+            nome = editora.nome.strip()
             if nome not in lista:
                 lista.append(nome)
                 pickle.dump(editora, pkfile)
@@ -200,18 +182,32 @@ with open('livros_unicos.csv','r') as file:
     with open('livros.pkl','wb') as pkfile:
         lista = []
         for row in reader:
-            #procura id editora no pkfile de editoras
-            id_editora = 0
+            #procura editora no pkfile de editoras
+            livro_editora = Editora(0,'')
             with open('editoras.pkl','rb') as pkeditoras:
                 while True:
                     try:
                         ed = pickle.load(pkeditoras)
-                        if ed.nome_editora == row[7]:
-                            id_editora = ed.id_editora
+                        if ed.nome == row[7]:
+                            livro_editora = ed
                             break
                     except EOFError:
-                        print("id não encontrado")
+                        print("id editora não encontrado")
                         break
+            #procura id autor no pkfile de editoras
+            livro_autor = Autor(0,'')
+            with open('autores.pkl','rb') as pkautores:
+                while True:
+                    try:
+                        at = pickle.load(pkautores)
+                        if at.nome == row[1]:
+                            livro_autor = at
+                            break
+                    except EOFError:
+                        print("id autor não encontrado")
+                        break
+
+            # apaga espaços em branco atrás/na frente de cada atributo
             row[0] = row[0].strip()
             row[3] = row[3].strip()
             row[6] = row[6].strip()
@@ -230,7 +226,7 @@ with open('livros_unicos.csv','r') as file:
             livro = Livro(i, row[0], row[3], row[6],  \
                 row[5], row[4], row[8], row[9], row[11], \
                 row[12], row[13], row[14], row[15], row[19], \
-                row[18],id_editora)
+                row[18],livro_editora,livro_autor)
             nome = livro.titulo
 
             if nome not in lista:
@@ -239,14 +235,13 @@ with open('livros_unicos.csv','r') as file:
                 i += 1
         lista.clear()
 
-# livros_autores
 # livros_generos
     
 ids = nomes = []
-with open('generos.pkl','rb') as pkfile:
+with open('livros.pkl','rb') as pkfile:
     while True:
         try:
-            gn = pickle.load(pkfile)
-            print(gn.id_genero,' - ',repr(gn.nome_genero))
+            lv = pickle.load(pkfile)
+            print(lv.titulo,' - ',lv.autor.nome)
         except EOFError:
             break
