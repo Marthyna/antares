@@ -1,6 +1,6 @@
 class nodoTrie_livro():
     def __init__(self):
-        self.filhos = [None]*26
+        self.filhos = [None]*10
         self.livro = ''
         # fimPalavra é True se o nodo representa o fim de uma palavra
         self.fimPalavra = False
@@ -16,7 +16,7 @@ class TrieLivro:
     def charToIndex(self,ch):    
         # Converte o char-chave atual em índice
         # só usa 'a'-'z' em minúsculo          
-        return ord(ch)-ord('a')  
+        return ord(ch)-ord('0')  
   
     def insere(self,chave,livro):          
         # Se chave não está na árvore, inserte
