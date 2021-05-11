@@ -357,7 +357,6 @@ def deletar(objeto,classe):
 # ---------- DEFINIÇÃO DE FUNÇÕES DE ORDENAÇÃO E CLASSIFICAÇÃO ----------- 
 # Dados uma classe, um atributo e uma ordem, 
 # ordena os objetos dessa classe de acordo com o atributo e a ordem
-
 def sort(classe,atributo,ordem):
     # livros
     if classe == 'livro':
@@ -458,46 +457,114 @@ def sort(classe,atributo,ordem):
         # abandonos
         # releituras
     # autores
-    #if classe == 'autor':
+    if classe == 'autor': 
         # por média das avaliações dos seus livros
-        #if atributo == 'media_ratings':
-            # crescente
-
-            # Decrescente
-        # qt livros lidos
-            # crescente
-
-            # Decrescente
-        # qt abandonados
-            # crescente
-
-            # Decrescente
+        if atributo == 'media_ratings': # funcional mas MUITO lento
+            t_rate = Trie()
+            medias = []
+            with open('autores.pkl','rb') as pkautores:
+                while True:
+                    try:
+                        at = pickle.load(pkautores)
+                        soma_ratings = qt_livros = media = 0
+                        with open('livros.pkl','rb') as pklivros:
+                            while True:
+                                try:
+                                    lv = pickle.load(pklivros)
+                                    if lv.get_autor().get_nome() == at.get_nome():
+                                        soma_ratings += float(lv.get_avaliacao())
+                                        qt_livros += 1
+                                except EOFError:
+                                    break
+                        if qt_livros != 0:
+                            media = soma_ratings / qt_livros
+                        at.set_media(media)
+                        if at.get_media() not in medias:
+                            medias.append(at.get_media())
+                            t_rate.insere_sort(at.get_media(),at)
+                        # se já foi, acha o nodo desse rating na Trie e insere o autor na lista desse nodo
+                        else:
+                            t_rate.atualiza_sort(at.get_media(),at)
+                    except EOFError:
+                        break
+            # percorrer Trie e listar todos os autores em cada nodo        
+            lista = listar(t_rate.get_raiz())                
+            # se for Decrescente, retornar lista reversa, senão retornar a normal
+            if ordem == 'd':
+                lista.reverse()
+            return lista
+                                 
+        # qt livros lidos FALTA
+        # qt abandonados FALTA
     # editoras
+    if classe == 'editora': 
         # por média das avaliações dos seus livros
-            # crescente
-
-            # Decrescente
-        # qt livros lidos
-            # crescente
-
-            # Decrescente
-        # qt abandonados
-            # crescente
-
-            # Decrescente
+            if atributo == 'media_ratings': # funcional mas MUITO lento
+                t_rate = Trie()
+                medias = []
+                with open('editoras.pkl','rb') as pkeditoras:
+                    while True:
+                        try:
+                            ed = pickle.load(pkeditoras)
+                            soma_ratings = qt_livros = media = 0
+                            with open('livros.pkl','rb') as pklivros:
+                                while True:
+                                    try:
+                                        lv = pickle.load(pklivros)
+                                        if lv.get_editora().get_nome() == ed.get_nome():
+                                            soma_ratings += float(lv.get_avaliacao())
+                                            qt_livros += 1
+                                    except EOFError:
+                                        break
+                            if qt_livros != 0:
+                                media = soma_ratings / qt_livros
+                            ed.set_media(media)
+                            if ed.get_media() not in medias:
+                                medias.append(ed.get_media())
+                                t_rate.insere_sort(ed.get_media(),ed)
+                            # se já foi, acha o nodo desse rating na Trie e insere o autor na lista desse nodo
+                            else:
+                                t_rate.atualiza_sort(ed.get_media(),ed)
+                        except EOFError:
+                            break
+                # percorrer Trie e listar todas as editoras em cada nodo        
+                lista = listar(t_rate.get_raiz())                
+                # se for Decrescente, retornar lista reversa, senão retornar a normal
+                if ordem == 'd':
+                    lista.reverse()
+                return lista
+            
+        # qt livros lidos FALTA
+        # qt abandonados FALTA
 
 # Dados um autor, um atributo e uma ordem, listar as obras desse autor
 # de acordo com o atributo e na dada ordem
-#def listarAutor(autor,atributo,ordem):
+def listarPorAutor(autor,atributo,ordem):
     # por ano
         # crescente
 
         # decrescente
 
     # avaliação
-        # crescente
-
-        # decrescente
+    if atributo == 'rating':
+        t_rate = Trie()
+        ratings = []
+        with open('livros.pkl','rb') as pklivros:
+            while True:
+                try:
+                    lv = pickle.load(pklivros)
+                    if lv.get_autor().get_nome() == autor:
+                        if lv.get_avaliacao() not in ratings:
+                            ratings.append(lv.get_avaliacao())
+                            t_rate.insere_sort(lv.get_avaliacao(),lv)
+                        else:
+                            t_rate.atualiza_sort(lv.get_avaliacao(), lv)
+                except EOFError:
+                    break   
+        lista = listar(t_rate.get_raiz())                
+        if ordem == 'd':
+            lista.reverse()
+        return lista
 
     # leitores
         # crescente
@@ -532,16 +599,32 @@ def sort(classe,atributo,ordem):
 
 # Dados uma editora, um atributo e uma ordem, listar as obras dessa editora
 # de acordo com o atributo e na dada ordem
-#def listarEditora(editora,atributo,ordem):
+def listarPorEditora(editora,atributo,ordem):
     # por ano
         # crescente
 
         # decrescente
 
     # avaliação
-        # crescente
-
-        # decrescente
+    if atributo == 'rating':
+        t_rate = Trie()
+        ratings = []
+        with open('livros.pkl','rb') as pklivros:
+            while True:
+                try:
+                    lv = pickle.load(pklivros)
+                    if lv.get_editora().get_nome() == editora:
+                        if lv.get_avaliacao() not in ratings:
+                            ratings.append(lv.get_avaliacao())
+                            t_rate.insere_sort(lv.get_avaliacao(),lv)
+                        else:
+                            t_rate.atualiza_sort(lv.get_avaliacao(), lv)
+                except EOFError:
+                    break       
+        lista = listar(t_rate.get_raiz())                
+        if ordem == 'd':
+            lista.reverse()
+        return lista
 
     # leitores
         # crescente
@@ -576,10 +659,29 @@ def sort(classe,atributo,ordem):
 
 # Dados um gênero, um atributo e uma ordem, listar as obras desse gênero
 # de acordo com o atributo e na dada ordem
-#def listarGenero(genero,atributo,ordem):
+def listarPorGenero(genero,atributo,ordem):
     # mais lidos
 
     # melhor avaliados
+    if atributo == 'rating':
+        t_rate = Trie()
+        ratings = []
+        with open('livros.pkl','rb') as pklivros:
+            while True:
+                try:
+                    lv = pickle.load(pklivros)
+                    if genero in lv.get_generos():
+                        if lv.get_avaliacao() not in ratings:
+                            ratings.append(lv.get_avaliacao())
+                            t_rate.insere_sort(lv.get_avaliacao(),lv)
+                        else:
+                            t_rate.atualiza_sort(lv.get_avaliacao(), lv)
+                except EOFError:
+                    break       
+        lista = listar(t_rate.get_raiz())                
+        if ordem == 'd':
+            lista.reverse()
+        return lista
 
     # mais abandonos
 
@@ -589,10 +691,24 @@ def sort(classe,atributo,ordem):
 
     # mais leitoras
 
-    # mais 
+    # mais leitores
+
+# Dada uma classe, lista seus objetos por ordem alfabética da chave
+# Livros por título
+# Autores/Gêneros/Editoras por nome
+def listarObjetos(classe,ordem):
+    t = carregaTrie(classe)
+    lista = listar(t.get_raiz())
+    if ordem == 'd':
+        lista.reverse()
+    if classe == 'livro':
+        for i in lista:
+            print(i.get_titulo())
+    else:
+        for i in lista:
+            print(i.get_nome())
+
+# ------------------------------------------------------------------------
 
 # Listar elementos em dada ordem
-#lista = sort('livro','lendo','c')
-#print(len(lista))
-#for i in lista:
-#    print(i.get_titulo(),'-',i.get_lendo())
+listarObjetos('genero','c')

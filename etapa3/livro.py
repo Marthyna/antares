@@ -52,7 +52,7 @@ class Livro(object):
         return self.editora
     def get_autor(self):
         return self.autor
-    def get_genero(self):
+    def get_generos(self):
         return self.generos
 # SETTERS
     def set_titulo(self, titulo):
@@ -87,5 +87,5 @@ class Livro(object):
         self.editora = editora
     def set_autor(self, autor):
         self.autor = autor
-    def set_genero(self, generos):
+    def set_generos(self, generos):
         self.generos = generos

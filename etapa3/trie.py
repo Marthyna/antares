@@ -137,9 +137,9 @@ class Trie:
         else:
             return False
 
-    # insere como chave o atributo do sort, para fazer a pesquisa de livros por atributo
-    # o atributo 'objeto' do nodo é uma lista de livros
-    def insere_sort(self,atrb,livro):
+    # insere como chave o atributo do sort, para fazer a pesquisa de objetos por atributo
+    # o atributo 'objeto' do nodo é uma lista de objetos (autores, livros, editoras)
+    def insere_sort(self,atrb,objeto):
         chave = str(atrb) # a chave é o atributo
         atual = self.get_raiz() # começa pela raiz
         n = len(chave) 
@@ -152,14 +152,14 @@ class Trie:
                 atual.set_filhos(self.getNode(),indice)
             atual = atual.get_filhos()[indice] # continua descendo
   
-        # marca último nodo como folha e inicializa sua lista de livros
+        # marca último nodo como folha e inicializa sua lista de objetos
         atual.set_fimPalavra(True)
         l = atual.get_objeto()
-        l.append(livro)
+        l.append(objeto)
         atual.set_objeto(l)
         
-    # atualiza atributo do sort inserindo livro em sua lista de livros
-    def atualiza_sort(self,atrb,livro):
+    # atualiza atributo do sort inserindo objeto em sua lista de objetos
+    def atualiza_sort(self,atrb,objeto):
         atual = self.get_raiz() # começa pela raiz
         chave = str(atrb)
         n = len(chave)
@@ -170,10 +170,10 @@ class Trie:
                 return False # não achou o atributo
             atual = atual.get_filhos()[indice] # senão continua descendo na sub-árvore
   
-        # se nodo atual não vazio e é folha, insere livro em sua lista e retorna true
+        # se nodo atual não vazio e é folha, insere objeto em sua lista e retorna true
         if atual != None and atual.get_fimPalavra():
             l = atual.get_objeto()
-            l.append(livro)
+            l.append(objeto)
             atual.set_objeto(l)
             return True
         else:
