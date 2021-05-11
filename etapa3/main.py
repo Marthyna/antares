@@ -1,16 +1,12 @@
 # bibliotecas
 import os
 import csv
-try:
-    import cPickle as pickle
-except ModuleNotFoundError:
-    import pickle
+import pickle
 from livro import Livro
 from genero import Genero
 from editora import Editora
 from autor import Autor
-from trie import nodoTrie
-from trie import Trie
+from trie import nodoTrie, Trie
 
 # alfabeto usada na indexação da Trie
 alfabeto = ['a','á','ã','â','à','ä','b','c','d','e','ë','é','ê','f','g','h','i',\
@@ -182,7 +178,7 @@ if not os.path.exists('generos.pkl') or not os.path.exists('livros.pkl'):
 # Dada uma classe, carrega o arquivo binário dessa classe numa Trie, e a retorna
 def carregaTrie(classe):
     t = Trie() # Cria nova Trie
-    if classe == 0: #Livro
+    if classe == 'livro': 
         # Abre arquivo binário de livros e insere todos os livros na Trie
         with open('livros.pkl','rb') as pklivros:
             while True:
@@ -192,7 +188,7 @@ def carregaTrie(classe):
                 except EOFError:
                     break
         return t
-    elif classe == 1: #Autor
+    elif classe == 'autor': 
         with open('autores.pkl','rb') as pkautores:
             while True:
                 try:
@@ -201,7 +197,7 @@ def carregaTrie(classe):
                 except EOFError:
                     break
         return t
-    elif classe == 2: #Editora
+    elif classe == 'editora': 
         with open('editoras.pkl','rb') as pkeditoras:
             while True:
                 try:
@@ -210,7 +206,7 @@ def carregaTrie(classe):
                 except EOFError:
                     break
         return t
-    elif classe == 3: #Genero
+    elif classe == 'genero':
         with open('generos.pkl','rb') as pkgeneros:
             while True:
                 try:
@@ -223,10 +219,15 @@ def carregaTrie(classe):
 # Função recursiva auxiliar que, dada a raiz de uma Trie, retorna lista com os elementos dela
 def listar(raiz):
     l = []
-    if raiz.fimPalavra: # se raiz é folha
-        l.append(raiz.objeto) # adiciona seu objeto na lista
+    if raiz.get_fimPalavra(): # se raiz é folha
+        # se objeto for uma lista, une com a lista atual
+        if isinstance(raiz.get_objeto(), list):
+            l = l + raiz.get_objeto()
+        # se objeto for livro/autor/editora/gênero, adiciona na lista atual
+        else:
+            l.append(raiz.get_objeto()) # adiciona seu objeto na lista
     else:
-        for nodo in raiz.filhos: # se raiz tem filhos
+        for nodo in raiz.get_filhos(): # se raiz tem filhos
             if nodo != None: # para cada filho não nulo, aplicar listar() recursivamente
                 l = l + listar(nodo)
     return l
@@ -236,16 +237,16 @@ def listar(raiz):
 def buscar(chave, classe):
     t = carregaTrie(classe) # carrega a Trie dessa classe
     chave = chave.lower() # formata para só minúsculas
-    if classe == 0: # Livro
+    if classe == 'livro': 
         livro = t.busca(chave) # busca o livro na Trie
         return livro
-    if classe == 1: # Autor
+    if classe == 'autor':
         autor = t.busca(chave)
         return autor
-    if classe == 2: # Editora
+    if classe == 'editora':
         editora = t.busca(chave)
         return editora
-    if classe == 3: # Genero
+    if classe == 'genero':
         genero = t.busca(chave)
         return genero
 
@@ -253,7 +254,7 @@ def buscar(chave, classe):
 # Retorna true se for bem sucedida e false caso contrário
 def inserir(objeto,classe):
     t = carregaTrie(classe)
-    if classe == 0: # Livro
+    if classe == 'livro': 
         chave = objeto.get_titulo()
         # se a busca por esse livro na Trie retorna None, insere no arquivo
         if t.busca(chave) == None:
@@ -262,7 +263,7 @@ def inserir(objeto,classe):
             return True
         else:
             return False
-    elif classe == 1: # Autor
+    elif classe == 'autor':
         chave = objeto.get_nome()
         if t.busca(chave) == None:
             with open('autores.pkl','ab') as pkautores:
@@ -270,7 +271,7 @@ def inserir(objeto,classe):
             return True
         else:
             return False
-    elif classe == 2: # Editora
+    elif classe == 'editora':
         chave = objeto.get_nome()
         if t.busca(chave) == None:
             with open('editoras.pkl','ab') as pkeditoras:
@@ -278,7 +279,7 @@ def inserir(objeto,classe):
             return True
         else:
             return False
-    elif classe == 3: # Gênero
+    elif classe == 'genero':
         chave = objeto.get_nome()
         if t.busca(chave) == None:
             with open('generos.pkl','ab') as pkgeneros:
@@ -315,12 +316,12 @@ def atualizaPickle(objeto,lista):
 def atualizar(chave_velho,objeto_novo,classe):
     chave_velho = chave_velho.lower() # formata chave velha pra minúsculo
     t = carregaTrie(classe) # carrega trie da classe
-    if classe == 0: # se for Livro
+    if classe == 'livro':
         velho = t.busca(chave_velho) # busca o registro desatualizado 
         if velho != None: # se achar
             sucesso = t.atualiza(velho,objeto_novo) # atualiza trie com livro atualizado
             if sucesso:
-                lista = listar(t.raiz) # lista elementos da trie atualizada
+                lista = listar(t.get_raiz()) # lista elementos da trie atualizada
                 atualizaPickle(objeto_novo,lista) # atualiza pickle file
                 return True
             else:
@@ -332,7 +333,7 @@ def atualizar(chave_velho,objeto_novo,classe):
         if velho != None:
             sucesso = t.atualiza(velho,objeto_novo)
             if sucesso:
-                lista = listar(t.raiz)
+                lista = listar(t.get_raiz())
                 atualizaPickle(velho,lista)
                 return True
             else:
@@ -346,74 +347,120 @@ def deletar(objeto,classe):
     t = carregaTrie(classe)
     # se a deleção retorna True, deu certo, atualiza o arquivo Pickle
     if t.deleta(objeto):
-        lista = listar(t.raiz)
+        lista = listar(t.get_raiz())
         atualizaPickle(objeto,lista)
         return True
     else:
         return False
 
+
 # ---------- DEFINIÇÃO DE FUNÇÕES DE ORDENAÇÃO E CLASSIFICAÇÃO ----------- 
 # Dados uma classe, um atributo e uma ordem, 
 # ordena os objetos dessa classe de acordo com o atributo e a ordem
+
 def sort(classe,atributo,ordem):
     # livros
+    if classe == 'livro':
         # Por ano
+        if atributo == 'ano':
             anos = []
             t_ano = Trie()
             # carregar trie usando ano
             # para cada livro, inserir ele na lista do nodo de ano correspondente
             with open('livros.pkl','rb') as pklivros:
-                lv = pklivros.load(pklivros)
-                # se ano ainda não foi inserido, insere
-                if lv.ano not in anos:
-                    anos.append(lv.ano)
-                    t_ano.insere_ano(lv.ano,lv)
-                # se já foi, acha o nodo desse ano na Trie e insere o livro na lista desse nodo
-                else:
-                    t_ano.atualiza_ano(lv.ano,lv.ano,lv)
-            # Crescente
-            # percorrer Trie da esquerda pra direita, listando todos os livros em cada nodo
-
-
-            # Decrescente
-            # percorrer Trie da direita pra esquerda
+                while True:
+                    try:
+                        lv = pickle.load(pklivros)
+                        # se ano ainda não foi inserido, insere
+                        if lv.get_ano() not in anos:
+                            anos.append(lv.ano)
+                            t_ano.insere_sort(lv.get_ano(),lv)
+                        # se já foi, acha o nodo desse ano na Trie e insere o livro na lista desse nodo
+                        else:
+                            t_ano.atualiza_sort(lv.get_ano(),lv)
+                    except EOFError:
+                        break
+            # percorrer Trie e listar todos os livros em cada nodo        
+            lista = listar(t_ano.get_raiz())                
+            # se for Decrescente, retornar lista reversa, senão retornar a normal
+            if ordem == 'd':
+                lista.reverse()
+            return lista
 
         # Por nota de avaliação
-            # Crescente
+        if atributo == 'rating':
+            ratings = []
+            t_rate = Trie()
+            # carregar trie usando rating
+            # para cada livro, inserir ele na lista do nodo de rating correspondente
+            with open('livros.pkl','rb') as pklivros:
+                while True:
+                    try:
+                        lv = pickle.load(pklivros)
+                        # se rating ainda não foi inserido, insere
+                        if lv.get_avaliacao() not in ratings:
+                            ratings.append(lv.get_avaliacao())
+                            t_rate.insere_sort(lv.get_avaliacao(),lv)
+                        # se já foi, acha o nodo desse rating na Trie e insere o livro na lista desse nodo
+                        else:
+                            t_rate.atualiza_sort(lv.get_avaliacao(),lv)
+                    except EOFError:
+                        break
+            # percorrer Trie e listar todos os livros em cada nodo        
+            lista = listar(t_rate.get_raiz())                
+            # se for Decrescente, retornar lista reversa, senão retornar a normal
+            if ordem == 'd':
+                lista.reverse()
+            return lista
 
-            # Decrescente
-
-        # Qt Leitores
-            # Crescente
-
-            # Decrescente
-
-        # Qt páginas
-            # Crescente
-
-            # Decrescente
-
+        # Quantidade de pessoas lendo (FALTA)
+        if atributo == 'lendo':
+            lendo = []
+            t_lendo = Trie()
+            with open('livros.pkl','rb') as pklivros:
+                while True:
+                    try:
+                        lv = pickle.load(pklivros)
+                        if lv.get_lendo() not in lendo:
+                            lendo.append(lv.get_lendo())
+                            t_lendo.insere_sort(lv.get_lendo(),lv)
+                        else:
+                            t_lendo.atualiza_sort(lv.get_lendo(),lv)
+                    except EOFError:
+                        break  
+            lista = listar(t_lendo.get_raiz())                
+            if ordem == 'd':
+                lista.reverse()
+            return lista
+    
+        # Qt páginas (FALTA)
+        if atributo == 'paginas':
+            pages = []
+            t_pages = Trie()
+            with open('livros.pkl','rb') as pklivros:
+                while True:
+                    try:
+                        lv = pickle.load(pklivros)
+                        if lv.get_paginas() not in pages:
+                            pages.append(lv.get_paginas())
+                            t_pages.insere_sort(lv.get_paginas(),lv)
+                        else:
+                            t_pages.atualiza_sort(lv.get_paginas(),lv)
+                    except EOFError:
+                        break     
+            lista = listar(t_pages.get_raiz())                
+            if ordem == 'd':
+                lista.reverse()
+            return lista
+            
         # Qt mulheres
-            # Crescente
-
-            # Decrescente
-
         # Qt homens
-            # Crescente
-
-            # Decrescente
-
         # abandonos
-            # Crescente
-
-            # Decrescente
-
         # releituras
-            # Crescente
-
-            # Decrescente
     # autores
+    #if classe == 'autor':
         # por média das avaliações dos seus livros
+        #if atributo == 'media_ratings':
             # crescente
 
             # Decrescente
@@ -545,3 +592,7 @@ def sort(classe,atributo,ordem):
     # mais 
 
 # Listar elementos em dada ordem
+#lista = sort('livro','lendo','c')
+#print(len(lista))
+#for i in lista:
+#    print(i.get_titulo(),'-',i.get_lendo())
