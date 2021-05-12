@@ -1,3 +1,4 @@
+from pickle import STRING
 from livro import Livro
 from genero import Genero
 from editora import Editora
@@ -33,7 +34,7 @@ class nodoTrie():
 class Trie:
     def __init__(self):
         self.raiz = self.getNode()
-    
+
     def get_raiz(self):
         return self.raiz
 
@@ -140,12 +141,13 @@ class Trie:
     # insere como chave o atributo do sort, para fazer a pesquisa de objetos por atributo
     # o atributo 'objeto' do nodo é uma lista de objetos (autores, livros, editoras)
     def insere_sort(self,atrb,objeto):
-        chave = str(atrb) # a chave é o atributo
+        chave = str(atrb)
+
         atual = self.get_raiz() # começa pela raiz
-        n = len(chave) 
+        n = len(str(chave)) 
         # vai descendo um nível na Trie por dígito na chave
         for nivel in range(n):
-            indice = self.charToIndex(chave[nivel])
+            indice = self.charToIndex(str(chave)[nivel])
   
             # se dígito atual não está presente, insere
             if not atual.get_filhos()[indice]:
@@ -162,9 +164,10 @@ class Trie:
     def atualiza_sort(self,atrb,objeto):
         atual = self.get_raiz() # começa pela raiz
         chave = str(atrb)
-        n = len(chave)
+
+        n = len(str(chave))
         for nivel in range(n): # para cada dígito da chave, vai descendo na Trie
-            indice = self.charToIndex(chave[nivel]) 
+            indice = self.charToIndex(str(chave)[nivel]) 
 
             if not atual.get_filhos()[indice]: # se nodo é folha mas não terminou a chave
                 return False # não achou o atributo

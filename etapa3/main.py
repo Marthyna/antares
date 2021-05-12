@@ -412,56 +412,59 @@ def sort(classe,atributo,ordem):
                 lista.reverse()
             return lista
 
-        # Quantidade de pessoas lendo (FALTA)
+        # Quantidade de pessoas lendo
         if atributo == 'lendo':
-            lendo = []
-            t_lendo = Trie()
-            with open('livros.pkl','rb') as pklivros:
-                while True:
-                    try:
-                        lv = pickle.load(pklivros)
-                        if lv.get_lendo() not in lendo:
-                            lendo.append(lv.get_lendo())
-                            t_lendo.insere_sort(lv.get_lendo(),lv)
-                        else:
-                            t_lendo.atualiza_sort(lv.get_lendo(),lv)
-                    except EOFError:
-                        break  
-            lista = listar(t_lendo.get_raiz())                
+            t = carregaTrie('livro')
+            l = listar(t.get_raiz())
+            newlist = sorted(l, key=lambda x: int(x.lendo), reverse=False)
             if ordem == 'd':
-                lista.reverse()
-            return lista
-    
-        # Qt páginas (FALTA)
+                newlist = sorted(l, key=lambda x: int(x.lendo), reverse=True)
+            return newlist
+        # Qt páginas
         if atributo == 'paginas':
-            pages = []
-            t_pages = Trie()
-            with open('livros.pkl','rb') as pklivros:
-                while True:
-                    try:
-                        lv = pickle.load(pklivros)
-                        if lv.get_paginas() not in pages:
-                            pages.append(lv.get_paginas())
-                            t_pages.insere_sort(lv.get_paginas(),lv)
-                        else:
-                            t_pages.atualiza_sort(lv.get_paginas(),lv)
-                    except EOFError:
-                        break     
-            lista = listar(t_pages.get_raiz())                
+            t = carregaTrie('livro')
+            l = listar(t.get_raiz())
+            newlist = sorted(l, key=lambda x: int(x.paginas), reverse=False)
             if ordem == 'd':
-                lista.reverse()
-            return lista
-            
+                newlist = sorted(l, key=lambda x: int(x.paginas), reverse=True)
+            return newlist
         # Qt mulheres
+        if atributo == 'mulheres':
+            t = carregaTrie('livro')
+            l = listar(t.get_raiz())
+            newlist = sorted(l, key=lambda x: int(x.qt_mulheres), reverse=False)
+            if ordem == 'd':
+                newlist = sorted(l, key=lambda x: int(x.qt_mulheres), reverse=True)
+            return newlist
         # Qt homens
+        if atributo == 'homens':
+            t = carregaTrie('livro')
+            l = listar(t.get_raiz())
+            newlist = sorted(l, key=lambda x: int(x.qt_homens), reverse=False)
+            if ordem == 'd':
+                newlist = sorted(l, key=lambda x: int(x.qt_homens), reverse=True)
+            return newlist
         # abandonos
+        if atributo == 'abandonos':
+            t = carregaTrie('livro')
+            l = listar(t.get_raiz())
+            newlist = sorted(l, key=lambda x: int(x.abandonos), reverse=False)
+            if ordem == 'd':
+                newlist = sorted(l, key=lambda x: int(x.abandonos), reverse=True)
+            return newlist
         # releituras
+        if atributo == 'relendo':
+            t = carregaTrie('livro')
+            l = listar(t.get_raiz())
+            newlist = sorted(l, key=lambda x: int(x.relendo), reverse=False)
+            if ordem == 'd':
+                newlist = sorted(l, key=lambda x: int(x.relendo), reverse=True)
+            return newlist
     # autores
     if classe == 'autor': 
         # por média das avaliações dos seus livros
         if atributo == 'media_ratings': # funcional mas MUITO lento
-            t_rate = Trie()
-            medias = []
+            t = Trie()
             with open('autores.pkl','rb') as pkautores:
                 while True:
                     try:
@@ -479,63 +482,148 @@ def sort(classe,atributo,ordem):
                         if qt_livros != 0:
                             media = soma_ratings / qt_livros
                         at.set_media(media)
-                        if at.get_media() not in medias:
-                            medias.append(at.get_media())
-                            t_rate.insere_sort(at.get_media(),at)
-                        # se já foi, acha o nodo desse rating na Trie e insere o autor na lista desse nodo
-                        else:
-                            t_rate.atualiza_sort(at.get_media(),at)
+                        t.insere(at)
                     except EOFError:
                         break
-            # percorrer Trie e listar todos os autores em cada nodo        
-            lista = listar(t_rate.get_raiz())                
-            # se for Decrescente, retornar lista reversa, senão retornar a normal
+            l = listar(t.get_raiz())
+            newlist = sorted(l, key=lambda x: int(x.get_media()), reverse=False)
             if ordem == 'd':
-                lista.reverse()
-            return lista
-                                 
-        # qt livros lidos FALTA
-        # qt abandonados FALTA
-    # editoras
-    if classe == 'editora': 
-        # por média das avaliações dos seus livros
-            if atributo == 'media_ratings': # funcional mas MUITO lento
-                t_rate = Trie()
-                medias = []
-                with open('editoras.pkl','rb') as pkeditoras:
-                    while True:
-                        try:
-                            ed = pickle.load(pkeditoras)
-                            soma_ratings = qt_livros = media = 0
-                            with open('livros.pkl','rb') as pklivros:
-                                while True:
-                                    try:
-                                        lv = pickle.load(pklivros)
-                                        if lv.get_editora().get_nome() == ed.get_nome():
-                                            soma_ratings += float(lv.get_avaliacao())
-                                            qt_livros += 1
-                                    except EOFError:
-                                        break
-                            if qt_livros != 0:
-                                media = soma_ratings / qt_livros
-                            ed.set_media(media)
-                            if ed.get_media() not in medias:
-                                medias.append(ed.get_media())
-                                t_rate.insere_sort(ed.get_media(),ed)
-                            # se já foi, acha o nodo desse rating na Trie e insere o autor na lista desse nodo
-                            else:
-                                t_rate.atualiza_sort(ed.get_media(),ed)
-                        except EOFError:
-                            break
-                # percorrer Trie e listar todas as editoras em cada nodo        
-                lista = listar(t_rate.get_raiz())                
-                # se for Decrescente, retornar lista reversa, senão retornar a normal
-                if ordem == 'd':
-                    lista.reverse()
-                return lista
+                newlist = sorted(l, key=lambda x: int(x.get_media()), reverse=True)
+            return newlist
+  
+        # qt livros lidos
+        if atributo == 'lidos': # funcional mas MUITO lento
+            t = Trie()
+            with open('autores.pkl','rb') as pkautores:
+                while True:
+                    try:
+                        at = pickle.load(pkautores)
+                        lidos = 0
+                        with open('livros.pkl','rb') as pklivros:
+                            while True:
+                                try:
+                                    lv = pickle.load(pklivros)
+                                    if lv.get_autor().get_nome() == at.get_nome():
+                                        lidos += int(lv.get_leram())
+                                except EOFError:
+                                    break
+                        at.set_lidos(lidos)
+                        t.insere(at)
+                    except EOFError:
+                        break
+            l = listar(t.get_raiz())
+            newlist = sorted(l, key=lambda x: int(x.get_lidos()), reverse=False)
+            if ordem == 'd':
+                newlist = sorted(l, key=lambda x: int(x.get_lidos()), reverse=True)
+            return newlist
             
-        # qt livros lidos FALTA
-        # qt abandonados FALTA
+        # qt abandonados
+        if atributo == 'abandonos': # funcional mas MUITO lento
+            t = Trie()
+            with open('autores.pkl','rb') as pkautores:
+                while True:
+                    try:
+                        at = pickle.load(pkautores)
+                        abandonos = 0
+                        with open('livros.pkl','rb') as pklivros:
+                            while True:
+                                try:
+                                    lv = pickle.load(pklivros)
+                                    if lv.get_autor().get_nome() == at.get_nome():
+                                        abandonos += int(lv.get_abandonos())
+                                except EOFError:
+                                    break
+                        at.set_abandonos(abandonos)
+                        t.insere(at)
+                    except EOFError:
+                        break
+            l = listar(t.get_raiz())
+            newlist = sorted(l, key=lambda x: int(x.get_abandonos()), reverse=False)
+            if ordem == 'd':
+                newlist = sorted(l, key=lambda x: int(x.get_abandonos()), reverse=True)
+            return newlist
+    # editoras
+    elif classe == 'editora': 
+        # por média das avaliações dos seus livros
+        if atributo == 'media_ratings': 
+            t = Trie()
+            with open('editoras.pkl','rb') as pkeditoras:
+                while True:
+                    try:
+                        ed = pickle.load(pkeditoras)
+                        soma_ratings = qt_livros = media = 0
+                        with open('livros.pkl','rb') as pklivros:
+                            while True:
+                                try:
+                                    lv = pickle.load(pklivros)
+                                    if lv.get_editora().get_nome() == ed.get_nome():
+                                        soma_ratings += float(lv.get_avaliacao())
+                                        qt_livros += 1
+                                except EOFError:
+                                    break
+                        if qt_livros != 0:
+                            media = soma_ratings / qt_livros
+                        ed.set_media(media)
+                        t.insere(ed)
+                    except EOFError:
+                        break
+            l = listar(t.get_raiz())
+            newlist = sorted(l, key=lambda x: int(x.get_media()), reverse=False)
+            if ordem == 'd':
+                newlist = sorted(l, key=lambda x: int(x.get_media()), reverse=True)
+            return newlist
+  
+        # qt livros lidos
+        if atributo == 'lidos': 
+            t = Trie()
+            with open('editoras.pkl','rb') as pkeditoras:
+                while True:
+                    try:
+                        ed = pickle.load(pkeditoras)
+                        lidos = 0
+                        with open('livros.pkl','rb') as pklivros:
+                            while True:
+                                try:
+                                    lv = pickle.load(pklivros)
+                                    if lv.get_editora().get_nome() == ed.get_nome():
+                                        lidos += int(lv.get_leram())
+                                except EOFError:
+                                    break
+                        ed.set_lidos(lidos)
+                        t.insere(ed)
+                    except EOFError:
+                        break
+            l = listar(t.get_raiz())
+            newlist = sorted(l, key=lambda x: int(x.get_lidos()), reverse=False)
+            if ordem == 'd':
+                newlist = sorted(l, key=lambda x: int(x.get_lidos()), reverse=True)
+            return newlist
+            
+        # qt abandonados
+        if atributo == 'abandonos': # funcional mas MUITO lento
+            t = Trie()
+            with open('editoras.pkl','rb') as pkeditoras:
+                while True:
+                    try:
+                        ed = pickle.load(pkeditoras)
+                        abandonos = 0
+                        with open('livros.pkl','rb') as pklivros:
+                            while True:
+                                try:
+                                    lv = pickle.load(pklivros)
+                                    if lv.get_editora().get_nome() == ed.get_nome():
+                                        abandonos += int(lv.get_abandonos())
+                                except EOFError:
+                                    break
+                        ed.set_abandonos(abandonos)
+                        t.insere(ed)
+                    except EOFError:
+                        break
+            l = listar(t.get_raiz())
+            newlist = sorted(l, key=lambda x: int(x.get_abandonos()), reverse=False)
+            if ordem == 'd':
+                newlist = sorted(l, key=lambda x: int(x.get_abandonos()), reverse=True)
+            return newlist
 
 # Dados um autor, um atributo e uma ordem, listar as obras desse autor
 # de acordo com o atributo e na dada ordem
@@ -710,5 +798,3 @@ def listarObjetos(classe,ordem):
 
 # ------------------------------------------------------------------------
 
-# Listar elementos em dada ordem
-listarObjetos('genero','c')
