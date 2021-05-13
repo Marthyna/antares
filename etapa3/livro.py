@@ -1,3 +1,6 @@
+from editora import Editora
+from autor import Autor
+
 class Livro(object):    
     def __init__(self,titulo,isbn10,idioma,paginas, \
                 ano,avaliacao,qt_avaliacoes,abandonos,relendo, \
@@ -89,3 +92,14 @@ class Livro(object):
         self.autor = autor
     def set_generos(self, generos):
         self.generos = generos
+
+    def to_dict(self):
+        return {
+            'Título':(self.titulo).title(),
+            'Autor':(self.autor.get_nome()).title(),
+            'Editora':(self.editora.get_nome()).title(),           
+            'Gênero':self.generos[0],
+            'Páginas':self.paginas,
+            'Ano':self.ano,
+            'Avaliação':self.avaliacao
+        }

@@ -1,9 +1,9 @@
 class Editora(object):
     def __init__(self,nome):
         self.nome = nome
-        self.media_rating = None
-        self.lidos = None
-        self.abandonos = None
+        self.media_rating = 0
+        self.lidos = 0
+        self.abandonos = 0
 # GETTERS
     def get_nome(self):
         return self.nome  
@@ -22,3 +22,11 @@ class Editora(object):
         self.lidos = lidos
     def set_abandonos(self,abandonos):
         self.abandonos = abandonos
+
+    def to_dict(self):
+        return {
+            'nome':(self.nome).title(),
+            'media':self.media_rating,
+            'lidos':self.lidos,
+            'abandonos':self.abandonos
+        }

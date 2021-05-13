@@ -7,3 +7,8 @@ class Genero(object):
 # SETTERS
     def set_nome(self,nome):
         self.nome = nome
+    
+    def to_dict(self):
+        return {
+            'nome':(self.nome).title()
+        }
