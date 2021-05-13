@@ -175,7 +175,8 @@ def carregar_dados():
             lista.clear()
             lista_generos.clear()
 
-# ---------- DEFINIÇÃO DE FUNÇÕES BUSCA/ATUALIZAÇÃO/DELEÇÃO/INSERÇÃO ----------- 
+
+# --------- DEFINIÇÃO DE FUNÇÕES BUSCA/ATUALIZAÇÃO/DELEÇÃO/INSERÇÃO ----------- 
 # Dada uma classe, carrega o arquivo binário dessa classe numa Trie, e a retorna
 def carregaTrie(classe):
     t = Trie() # Cria nova Trie
@@ -395,7 +396,7 @@ def deletar(objeto,classe):
         return False
 
 
-# ---------- DEFINIÇÃO DE FUNÇÕES DE ORDENAÇÃO E CLASSIFICAÇÃO ----------- 
+# --------- DEFINIÇÃO DE FUNÇÕES DE ORDENAÇÃO E CLASSIFICAÇÃO ----------- 
 # Dados uma classe, um atributo e uma ordem, 
 # ordena os objetos dessa classe de acordo com o atributo e a ordem
 def sort(classe,atributo,ordem):
@@ -1119,6 +1120,7 @@ def listarObjetos(classe,ordem):
     else:
         return lista
 
+# ---------- DEFINIÇÃO DE FUNÇÕES DE IMPRESSÃO DE MENU ----------- 
 # Função para imprimir o menu inicial e capturar a opção escolhida
 def print_menu(): 
     print(66*'-')
@@ -1202,7 +1204,7 @@ def print_addLivro():
             ano = input('Ano: ')
             genero = input('Gênero: ')
 
-            livro = Livro(titulo,isbn10,idioma,paginas,ano,0,0,0,0,0,0,0,0,0,ed,at,genero)
+            livro = Livro(titulo,isbn10,idioma,paginas,ano,0,0,0,0,0,0,0,0,0,ed,at,[genero])
             return livro
         else:
             return -2
@@ -1292,7 +1294,7 @@ def print_updLivro():
             elif atributo == '9':
                 genero = input('Novo gênero: ')
                 lv_novo = Livro(lv.titulo,lv.isbn10,lv.idioma,lv.paginas,lv.ano,lv.avaliacao,lv.qt_avaliacoes,\
-                            lv.abandonos,lv.relendo,lv.querem_ler,lv.lendo,lv.leram3,lv.qt_mulheres,lv.qt_homens,\
+                            lv.abandonos,lv.relendo,lv.querem_ler,lv.lendo,lv.leram1,lv.qt_mulheres,lv.qt_homens,\
                             lv.editora,lv.autor,genero)
                 return [lv_novo,chave_velho]
         else:
@@ -1328,10 +1330,10 @@ def print_listarPor():
 
     return input('Por qual opção você deseja listar os livros? ')
 
-# programa principal
+# ---------- PROGRAMA PRINCIPAL ----------- 
 def main():
     carregar_dados() # carrega dados do arquivo csv para os pickles
-    pd.set_option('display.max_rows', 5000) # configurações da tabela pandas
+    pd.set_option('display.max_rows', 6000) # configurações da tabela pandas
 
     # valores do menu inicial
     listReg = '1'
